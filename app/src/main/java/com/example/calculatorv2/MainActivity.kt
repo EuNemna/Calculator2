@@ -24,6 +24,7 @@ import com.example.calculatorv2.ui.theme.CalculatorV2Theme
 import com.example.calculatorv2.ui.theme.Purple200
 import com.example.calculatorv2.ui.theme.Purple500
 import com.example.calculatorv2.ui.theme.Purple700
+import java.lang.NumberFormatException
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,15 +60,28 @@ fun Greeting(name: String) {
     )
 }
 
+fun isNum(num: String): Boolean {
+    var numeric = true
+    try {
+        num.toDouble()
+    } catch (e: NumberFormatException) {
+        numeric = false
+    }
+
+    return numeric
+}
+
 fun equation(equation: String): String {
     val replacedValue = equation.replace("×", "*").replace("÷", "/")
     val arr = replacedValue.split("(?<=[*+/\\-])|(?=[*+/\\-])".toRegex())
+    val filteredArr = arr.filter { it != "" }
+    println(filteredArr)
 
     var num1: Double = 0.0
     var num2: Double = 0.0
     var answer = 0.0
 
-    if (arr.size >= 3) {
+    if (filteredArr.size >= 3) {
         if (arr[1] == "-" && arr[0] == "") {
             num1 = -arr[2].toDouble()
             num2 = arr[4].toDouble()
@@ -119,20 +133,28 @@ fun delete(equation: String):String {
     return equation
 }
 
-fun checkDuplicate(operator: String): String {
-    if (operator[operator.lastIndex - 1] == operator[operator.lastIndex]) {
-        return operator.dropLast(1)
+fun isDuplicate(operator: String): String {
+    val arr = listOf("+", "-", "×", "÷")
+    if (operator.length > 1) {
+        if (arr.contains(operator[operator.lastIndex].toString()) && arr.contains(operator[operator.lastIndex - 1].toString())) {
+            return operator.dropLast(1)
+        }
     }
 
     return operator
 }
 
-fun checkIfNegative(equation: String): String {
-    if (equation[0] == '-') {
-        return equation.removeRange(0, 1)
-    } else {
-        return "-$equation"
+fun isNegative(equation: String): String {
+    val arr = listOf("+", "-", "×", "÷")
+    if (equation.isNotEmpty()) {
+        return if (arr.contains(equation[0].toString())) {
+            equation.drop(0)
+        } else {
+            "-$equation"
+        }
     }
+
+    return equation
 }
 
 @Composable
@@ -181,7 +203,7 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             ) {
                 Text("⌫", style = MaterialTheme.typography.h5, color = Color.White)
             }
-            Button(onClick = { onCountChange(checkIfNegative(count)) },
+            Button(onClick = { onCountChange(isNegative(count)) },
                 colors = ButtonDefaults.buttonColors(Color.DarkGray),
                 modifier = Modifier
                     .width(80.dp)
@@ -190,7 +212,7 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             ) {
                 Text("±", style = MaterialTheme.typography.h5, color = Color.White)
             }
-            Button(onClick = { onCountChange(checkDuplicate("$count÷")) },
+            Button(onClick = { onCountChange(isDuplicate("$count÷")) },
                 colors = ButtonDefaults.buttonColors(Color.DarkGray),
                 modifier = Modifier
                     .width(80.dp)
@@ -231,7 +253,7 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             ) {
                 Text("9", style = MaterialTheme.typography.h5, color = Color.White)
             }
-            Button(onClick = { onCountChange(checkDuplicate("$count×")) },
+            Button(onClick = { onCountChange(isDuplicate("$count×")) },
                 colors = ButtonDefaults.buttonColors(Color.DarkGray),
                 modifier = Modifier
                     .width(80.dp)
@@ -272,7 +294,7 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             ) {
                 Text("6", style = MaterialTheme.typography.h5, color = Color.White)
             }
-            Button(onClick = { onCountChange(checkDuplicate("$count-")) },
+            Button(onClick = { onCountChange(isDuplicate("$count-")) },
                 colors = ButtonDefaults.buttonColors(Color.DarkGray),
                 modifier = Modifier
                     .width(80.dp)
@@ -313,7 +335,7 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             ) {
                 Text("3", style = MaterialTheme.typography.h5, color = Color.White)
             }
-            Button(onClick = { onCountChange(checkDuplicate("$count+")) },
+            Button(onClick = { onCountChange(isDuplicate("$count+")) },
                 colors = ButtonDefaults.buttonColors(Color.DarkGray),
                 modifier = Modifier
                     .width(80.dp)
@@ -345,7 +367,7 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             ) {
                 Text("0", style = MaterialTheme.typography.h5, color = Color.White)
             }
-            Button(onClick = { onCountChange(checkDuplicate("$count.")) },
+            Button(onClick = { onCountChange(isDuplicate("$count.")) },
                 colors = ButtonDefaults.buttonColors(Color.DarkGray),
                 modifier = Modifier
                     .width(80.dp)
