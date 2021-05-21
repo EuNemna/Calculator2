@@ -44,47 +44,99 @@ fun TextInput() {
 }
 
 @Composable
-fun NameList(names: List<String>, modifier: Modifier = Modifier) {
-    LazyColumn(modifier = modifier) {
-        items(items = names) { name ->
-            Greeting(name = name)
+fun Greeting(name: String) {
+    Text(text = name,
+        modifier = Modifier
+            .padding(15.dp)
+            .background(color = Color.Transparent),
+        style = MaterialTheme.typography.h3,
+    )
+}
+
+//@Composable
+//fun NameList(name: String, modifier: Modifier = Modifier) {
+//    LazyColumn(modifier = modifier) {
+//        Greeting(name)
+//    }
+//}
+
+fun equation(equation: String): String {
+    val replacedValue = equation.replace("×", "*").replace("÷", "/")
+    val arr = replacedValue.split("(?<=[*+/\\-])|(?=[*+/\\-])".toRegex())
+
+    var num1: Double = 0.0
+    var num2: Double = 0.0
+    var answer = 0.0
+
+    if (arr.size >= 3) {
+        if (arr[1] == "-" && arr[0] == "") {
+            num1 = -arr[2].toDouble()
+            num2 = arr[4].toDouble()
+
+            when {
+                arr[3] == "+" -> {
+                    answer = num1 + num2
+                }
+                arr[3] == "-" -> {
+                    answer = num1 - num2
+                }
+                arr[3] == "/" -> {
+                    answer = num1 / num2
+                }
+                arr[3] == "*" -> {
+                    answer = num1 * num2
+                }
+            }
+        } else {
+            num1 = arr[0].toDouble()
+            num2 = arr[2].toDouble()
+
+            when {
+                arr[1] == "+" -> {
+                    answer = num1 + num2
+                }
+                arr[1] == "-" -> {
+                    answer = num1 - num2
+                }
+                arr[1] == "/" -> {
+                    answer = num1 / num2
+                }
+                arr[1] == "*" -> {
+                    answer = num1 * num2
+                }
+            }
         }
+        return answer.toString().replace(".0", "")
+    } else {
+        return equation
     }
 }
 
-fun Equation(equation: String): String {
-    val arr = equation.split("(?<=[*+/\\-])|(?=[*+/\\-])".toRegex())
-
-    val num1: Double = arr[0].toDouble()
-    val num2: Double = arr[2].toDouble()
-    var answer = 0.0
-    when {
-        arr[1].equals("+") -> {
-            answer = num1 + num2
-        }
-        arr[1].equals("-") -> {
-            answer = num1 - num2
-        }
-        arr[1].equals("/") -> {
-            answer = num1 / num2
-        }
-        arr[1].equals("*") -> {
-            answer = num1 * num2
-        }
+fun delete(equation: String):String {
+    if (equation != "") {
+        return equation.dropLast(1)
     }
-    return answer.toString().replace(".0", "")
+
+    return equation
+}
+
+fun checkIfNegative(equation: String): String {
+    if (equation[0] == '-') {
+        return equation.removeRange(0, 1)
+    } else {
+        return "-$equation"
+    }
 }
 
 @Composable
 fun MyScreenContent() {
     var count by rememberSaveable { mutableStateOf("") }
-    val text = listOf(count)
 
     Column (
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        NameList(names = text)
+        Greeting(count)
         TextInput()
         Counter(count = count,onCountChange = { count = it })
     }
@@ -96,10 +148,47 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .background(color = Color.Transparent)
-            .padding(top = 180.dp),
+            .padding(top = 110.dp),
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.Bottom,
     ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            Button(onClick = { onCountChange("") },
+                colors = ButtonDefaults.buttonColors(Color.Transparent),
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(10.dp))
+                    .padding(10.dp),
+            ) {
+                Text("AC", style = MaterialTheme.typography.h5)
+            }
+            Button(onClick = { onCountChange(checkIfNegative(count)) },
+                colors = ButtonDefaults.buttonColors(Color.Transparent),
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(10.dp))
+                    .padding(10.dp),
+            ) {
+                Text("+/-", style = MaterialTheme.typography.h5)
+            }
+            Button(onClick = { onCountChange(delete(count)) },
+                colors = ButtonDefaults.buttonColors(Color.Transparent),
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(10.dp))
+                    .padding(10.dp),
+            ) {
+                Text("<-", style = MaterialTheme.typography.h5)
+            }
+            Button(onClick = { onCountChange("$count÷") },
+                colors = ButtonDefaults.buttonColors(Color.Transparent),
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(10.dp))
+                    .padding(10.dp),
+            ) {
+                Text("÷", style = MaterialTheme.typography.h5)
+            }
+        }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceAround
@@ -128,13 +217,13 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             ) {
                 Text("9", style = MaterialTheme.typography.h5)
             }
-            Button(onClick = { onCountChange("$count/") },
+            Button(onClick = { onCountChange("$count×") },
                 colors = ButtonDefaults.buttonColors(Color.Transparent),
                 modifier = Modifier
                     .clip(shape = RoundedCornerShape(10.dp))
                     .padding(10.dp),
             ) {
-                Text("/", style = MaterialTheme.typography.h5)
+                Text("×", style = MaterialTheme.typography.h5)
             }
         }
         Row(
@@ -165,13 +254,13 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             ) {
                 Text("6", style = MaterialTheme.typography.h5)
             }
-            Button(onClick = { onCountChange("$count*") },
+            Button(onClick = { onCountChange("$count-") },
                 colors = ButtonDefaults.buttonColors(Color.Transparent),
                 modifier = Modifier
                     .clip(shape = RoundedCornerShape(10.dp))
                     .padding(10.dp),
             ) {
-                Text("x", style = MaterialTheme.typography.h5)
+                Text("-", style = MaterialTheme.typography.h5)
             }
         }
         Row(
@@ -202,35 +291,6 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             ) {
                 Text("3", style = MaterialTheme.typography.h5)
             }
-            Button(onClick = { onCountChange("$count-") },
-                colors = ButtonDefaults.buttonColors(Color.Transparent),
-                modifier = Modifier
-                    .clip(shape = RoundedCornerShape(10.dp))
-                    .padding(10.dp),
-            ) {
-                Text("-", style = MaterialTheme.typography.h5)
-            }
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-            Button(onClick = { onCountChange(count + "0") },
-                colors = ButtonDefaults.buttonColors(Color.Transparent),
-                modifier = Modifier
-                    .clip(shape = RoundedCornerShape(10.dp))
-                    .padding(10.dp),
-            ) {
-                Text("0", style = MaterialTheme.typography.h5)
-            }
-            Button(onClick = { onCountChange("0") },
-                colors = ButtonDefaults.buttonColors(Color.Transparent),
-                modifier = Modifier
-                    .clip(shape = RoundedCornerShape(10.dp))
-                    .padding(10.dp),
-            ) {
-                Text("AC", style = MaterialTheme.typography.h5)
-            }
             Button(onClick = { onCountChange("$count+") },
                 colors = ButtonDefaults.buttonColors(Color.Transparent),
                 modifier = Modifier
@@ -239,7 +299,36 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             ) {
                 Text("+", style = MaterialTheme.typography.h5)
             }
-            Button(onClick = { onCountChange(Equation(count)) },
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            Button(onClick = { onCountChange("0.$count") },
+                colors = ButtonDefaults.buttonColors(Color.Transparent),
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(10.dp))
+                    .padding(10.dp),
+            ) {
+                Text("%", style = MaterialTheme.typography.h5)
+            }
+            Button(onClick = { onCountChange(count + "0") },
+                colors = ButtonDefaults.buttonColors(Color.Transparent),
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(10.dp))
+                    .padding(10.dp),
+            ) {
+                Text("0", style = MaterialTheme.typography.h5)
+            }
+            Button(onClick = { onCountChange("$count.") },
+                colors = ButtonDefaults.buttonColors(Color.Transparent),
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(10.dp))
+                    .padding(10.dp),
+            ) {
+                Text(".", style = MaterialTheme.typography.h5)
+            }
+            Button(onClick = { onCountChange(equation(count)) },
                 colors = ButtonDefaults.buttonColors(Color.Transparent),
                 modifier = Modifier
                     .clip(shape = RoundedCornerShape(10.dp))
@@ -258,16 +347,6 @@ fun MyApp(content: @Composable () -> Unit) {
             content()
         }
     }
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = name,
-        modifier = Modifier
-            .padding(15.dp)
-            .background(color = Color.Transparent),
-        style = MaterialTheme.typography.h3,
-    )
 }
 
 @Preview("Preview test")
