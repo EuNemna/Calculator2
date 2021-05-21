@@ -53,11 +53,11 @@ fun NameList(names: List<String>, modifier: Modifier = Modifier) {
 }
 
 fun Equation(equation: String): String {
-    val arr = equation.split("\\p{Punct}+".toRegex())
+    val arr = equation.split("(?<=[*+/\\-])|(?=[*+/\\-])".toRegex())
 
-    val num1: Int = arr[0].toInt()
-    val num2: Int = arr[2].toInt()
-    var answer = 0
+    val num1: Double = arr[0].toDouble()
+    val num2: Double = arr[2].toDouble()
+    var answer = 0.0
     when {
         arr[1].equals("+") -> {
             answer = num1 + num2
@@ -72,7 +72,7 @@ fun Equation(equation: String): String {
             answer = num1 * num2
         }
     }
-    return answer.toString()
+    return answer.toString().replace(".0", "")
 }
 
 @Composable
@@ -95,12 +95,14 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = Color.Transparent),
+            .background(color = Color.Transparent)
+            .padding(top = 180.dp),
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.Bottom,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
         ) {
             Button(onClick = { onCountChange(count + "7") },
                 colors = ButtonDefaults.buttonColors(Color.Transparent),
@@ -126,7 +128,7 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             ) {
                 Text("9", style = MaterialTheme.typography.h5)
             }
-            Button(onClick = { onCountChange(count + "/") },
+            Button(onClick = { onCountChange("$count/") },
                 colors = ButtonDefaults.buttonColors(Color.Transparent),
                 modifier = Modifier
                     .clip(shape = RoundedCornerShape(10.dp))
@@ -136,7 +138,8 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             }
         }
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
         ) {
             Button(onClick = { onCountChange(count + "4") },
                 colors = ButtonDefaults.buttonColors(Color.Transparent),
@@ -162,7 +165,7 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             ) {
                 Text("6", style = MaterialTheme.typography.h5)
             }
-            Button(onClick = { onCountChange(count + "*") },
+            Button(onClick = { onCountChange("$count*") },
                 colors = ButtonDefaults.buttonColors(Color.Transparent),
                 modifier = Modifier
                     .clip(shape = RoundedCornerShape(10.dp))
@@ -172,7 +175,8 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             }
         }
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
         ) {
             Button(onClick = { onCountChange(count + "1") },
                 colors = ButtonDefaults.buttonColors(Color.Transparent),
@@ -198,7 +202,7 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             ) {
                 Text("3", style = MaterialTheme.typography.h5)
             }
-            Button(onClick = { onCountChange(count + "-") },
+            Button(onClick = { onCountChange("$count-") },
                 colors = ButtonDefaults.buttonColors(Color.Transparent),
                 modifier = Modifier
                     .clip(shape = RoundedCornerShape(10.dp))
@@ -208,8 +212,8 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             }
         }
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
         ) {
             Button(onClick = { onCountChange(count + "0") },
                 colors = ButtonDefaults.buttonColors(Color.Transparent),
@@ -219,7 +223,7 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             ) {
                 Text("0", style = MaterialTheme.typography.h5)
             }
-            Button(onClick = { onCountChange("") },
+            Button(onClick = { onCountChange("0") },
                 colors = ButtonDefaults.buttonColors(Color.Transparent),
                 modifier = Modifier
                     .clip(shape = RoundedCornerShape(10.dp))
@@ -227,7 +231,7 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
             ) {
                 Text("AC", style = MaterialTheme.typography.h5)
             }
-            Button(onClick = { onCountChange(count + "+") },
+            Button(onClick = { onCountChange("$count+") },
                 colors = ButtonDefaults.buttonColors(Color.Transparent),
                 modifier = Modifier
                     .clip(shape = RoundedCornerShape(10.dp))
@@ -249,7 +253,7 @@ fun Counter(count: String, onCountChange: (String) -> Unit) {
 
 @Composable
 fun MyApp(content: @Composable () -> Unit) {
-    CalculatorV2Theme() {
+    CalculatorV2Theme {
         Surface(color = Color.White) {
             content()
         }
@@ -262,7 +266,7 @@ fun Greeting(name: String) {
         modifier = Modifier
             .padding(15.dp)
             .background(color = Color.Transparent),
-        style = MaterialTheme.typography.h5,
+        style = MaterialTheme.typography.h3,
     )
 }
 
